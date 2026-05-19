@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introdução ao Linux — IFRJ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ps-blue: #0070d1;
+      --ps-blue-pressed: #0064b7;
+      --ps-dark: #000000;
+      --ps-dark-elevated: #121314;
+      --ps-card-dark: #181818;
+      --ps-light: #ffffff;
+      --ps-soft: #f3f3f3;
+      --ps-card: #f5f7fa;
+      --ps-orange: #d53b00;
+      --text-dark: rgba(0,0,0,0.65);
+      --text-light: rgba(255,255,255,0.72);
+      --gold-1: #ffce21;
+      --gold-2: #f5a623;
+      --gold-3: #ee8e00;
+      --radius: 8px;
+      --pill: 999px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --transition: all .45s cubic-bezier(.2,.8,.2,1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+      background: var(--ps-dark);
+      color: white;
+      overflow-x: hidden;
+    }
+
+    ::selection {
+      background: var(--ps-blue);
+      color: white;
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -3;
+      opacity: .3;
+    }
+
+    .glow {
+      position: fixed;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,112,209,.35) 0%, rgba(0,112,209,0) 70%);
+      filter: blur(40px);
+      top: -200px;
+      right: -150px;
+      z-index: -2;
+      animation: pulse 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1) translateY(0px); }
+      to { transform: scale(1.15) translateY(50px); }
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 70px;
+      background: rgba(0,0,0,.75);
+      backdrop-filter: blur(14px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      z-index: 999;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 600;
+      letter-spacing: .5px;
+    }
+
+    .logo img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 15px rgba(0,112,209,.45));
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      font-size: .92rem;
+      color: rgba(255,255,255,.75);
+    }
+
+    .nav-links a {
+      color: inherit;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    section {
+      min-height: 100vh;
+      padding: 120px 7vw 80px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1380px;
+      margin: auto;
+    }
+
+    .hero {
+      background:
+        linear-gradient(135deg, rgba(0,0,0,.95), rgba(18,19,20,.95)),
+        url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1600&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero-content {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--pill);
+      margin-bottom: 28px;
+      backdrop-filter: blur(12px);
+      animation: fadeUp 1s ease forwards;
+    }
+
+    .tag::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ps-blue);
+      box-shadow: 0 0 12px var(--ps-blue);
+    }
+
+    h1 {
+      font-size: clamp(3rem, 7vw, 5.6rem);
+      line-height: 1.05;
+      font-weight: 300;
+      letter-spacing: -.03em;
+      margin-bottom: 30px;
+      animation: fadeUp 1s ease .2s forwards;
+      opacity: 0;
+    }
+
+    .highlight {
+      color: var(--ps-blue);
+      text-shadow: 0 0 25px rgba(0,112,209,.4);
+    }
+
+    .hero p {
+      color: var(--text-light);
+      font-size: 1.2rem;
+      line-height: 1.8;
+      max-width: 720px;
+      margin-bottom: 40px;
+      animation: fadeUp 1s ease .4s forwards;
+      opacity: 0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      animation: fadeUp 1s ease .6s forwards;
+      opacity: 0;
+    }
+
+    .btn {
+      border: none;
+      border-radius: var(--pill);
+      padding: 15px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: var(--ps-blue);
+      color: white;
+      box-shadow: 0 0 30px rgba(0,112,209,.35);
+    }
+
+    .btn-primary:hover {
+      background: var(--ps-blue-pressed);
+      transform: translateY(-4px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: white;
+      border: 1px solid rgba(255,255,255,.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.08);
+      transform: translateY(-4px);
+    }
+
+    .hero-image {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .hero-image img {
+      width: min(420px, 90%);
+      animation: float 5s ease-in-out infinite;
+      filter: drop-shadow(0 25px 40px rgba(0,0,0,.6));
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(35px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-dark {
+      background: linear-gradient(180deg, var(--ps-dark-elevated), var(--ps-dark));
+    }
+
+    .section-light {
+      background: var(--ps-light);
+      color: black;
+    }
+
+    .section-blue {
+      background: linear-gradient(135deg, var(--ps-blue), #00539a);
+      color: white;
+    }
+
+    .section-header {
+      margin-bottom: 70px;
+    }
+
+    .section-header span {
+      color: var(--ps-blue);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .section-light .section-header span {
+      color: var(--ps-blue);
+    }
+
+    .section-header h2 {
+      font-size: clamp(2.3rem, 5vw, 4rem);
+      line-height: 1.1;
+      margin-top: 12px;
+      font-weight: 300;
+    }
+
+    .section-header p {
+      margin-top: 20px;
+      max-width: 760px;
+      line-height: 1.8;
+      color: inherit;
+      opacity: .72;
+      font-size: 1.05rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 26px;
+    }
+
+    .card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 32px;
+      backdrop-filter: blur(10px);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section-light .card {
+      background: var(--ps-card);
+      border: 1px solid rgba(0,0,0,.06);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,112,209,.18), transparent 60%);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow);
+    }
+
+    .card-number {
+      font-size: .9rem;
+      color: var(--ps-blue);
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 18px;
+      font-weight: 400;
+    }
+
+    .card p,
+    .card li {
+      color: inherit;
+      opacity: .8;
+      line-height: 1.7;
+    }
+
+    .timeline {
+      position: relative;
+      margin-top: 50px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(var(--ps-blue), transparent);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      width: calc(50% - 40px);
+      background: rgba(255,255,255,.03);
+      padding: 28px;
+      border-radius: var(--radius);
+      margin-bottom: 40px;
+      position: relative;
+      border: 1px solid rgba(255,255,255,.08);
+      transition: var(--transition);
+    }
+
+    .timeline-item:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow);
+    }
+
+    .timeline-item:nth-child(odd) {
+      margin-right: auto;
+    }
+
+    .timeline-item:nth-child(even) {
+      margin-left: auto;
+    }
+
+    .timeline-item::after {
+      content: '';
+      position: absolute;
+      top: 30px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--ps-blue);
+      box-shadow: 0 0 20px rgba(0,112,209,.6);
+    }
+
+    .timeline-item:nth-child(odd)::after {
+      right: -48px;
+    }
+
+    .timeline-item:nth-child(even)::after {
+      left: -48px;
+    }
+
+    .timeline-year {
+      color: var(--ps-blue);
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    .section-light table {
+      background: white;
+    }
+
+    th {
+      background: var(--ps-blue);
+      color: white;
+      padding: 18px;
+      text-align: left;
+      font-size: .95rem;
+    }
+
+    td {
+      padding: 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      line-height: 1.7;
+    }
+
+    .section-light td {
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+
+    .code-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 50px;
+    }
+
+    .command-box {
+      background: #050505;
+      border-radius: var(--radius);
+      padding: 26px;
+      border: 1px solid rgba(0,112,209,.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .command-box::before {
+      content: 'terminal';
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: .75rem;
+      color: rgba(255,255,255,.25);
+      letter-spacing: 2px;
+    }
+
+    .command {
+      color: #53b1ff;
+      font-family: monospace;
+      font-size: 1rem;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .command-desc {
+      color: rgba(255,255,255,.75);
+      line-height: 1.7;
+    }
+
+    .plus-banner {
+      background: linear-gradient(90deg, var(--gold-1), var(--gold-2), var(--gold-3));
+      border-radius: var(--radius);
+      padding: 40px;
+      color: black;
+      margin-top: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plus-banner::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      top: -120px;
+      right: -60px;
+    }
+
+    .plus-banner h3 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      font-weight: 300;
+    }
+
+    .footer {
+      background: var(--ps-blue);
+      padding: 70px 7vw;
+      text-align: center;
+    }
+
+    .footer h2 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 300;
+      margin-bottom: 24px;
+    }
+
+    .footer p {
+      max-width: 800px;
+      margin: auto;
+      line-height: 1.8;
+      opacity: .9;
+    }
+
+    .footer-bottom {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.2);
+      font-size: .92rem;
+      opacity: .85;
+    }
+
+    .floating-orb {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,112,209,.25), transparent 70%);
+      filter: blur(20px);
+      animation: orb 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes orb {
+      from { transform: translateY(0) translateX(0); }
+      to { transform: translateY(60px) translateX(-40px); }
+    }
+
+    .floating-orb.left {
+      top: 80px;
+      left: -120px;
+    }
+
+    .floating-orb.right {
+      bottom: -100px;
+      right: -100px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-image {
+        order: -1;
+      }
+
+      .timeline::before {
+        left: 0;
+      }
+
+      .timeline-item {
+        width: calc(100% - 40px);
+        margin-left: 40px !important;
+      }
+
+      .timeline-item::after {
+        left: -48px !important;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      section {
+        padding: 110px 24px 60px;
+      }
+
+      .navbar {
+        padding: 0 20px;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="glow"></div>
+
+  <nav class="navbar">
+    <div class="logo">
+      <img src="Linux_mascot_tux.png" alt="Linux" />
+      <span>GNU/Linux Experience</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="#historia">História</a>
+      <a href="#distros">Distribuições</a>
+      <a href="#gui">Interface</a>
+      <a href="#arquivos">Arquivos</a>
+      <a href="#terminal">Terminal</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container hero-content">
+      <div>
+        <div class="tag">Sistemas Operacionais • IFRJ Campus Pinheiral</div>
+
+        <h1>
+          Introdução ao <span class="highlight">GNU/Linux</span>
+        </h1>
+
+        <p>
+          Uma experiência visual inspirada na identidade PlayStation para explorar a história do Unix,
+          o nascimento do Linux, as distribuições, o terminal e a estrutura dos sistemas operacionais modernos.
+        </p>
+
+        <div class="btn-group">
+          <a href="#historia" class="btn btn-primary">Iniciar Aula</a>
+          <a href="#terminal" class="btn btn-secondary">Explorar Terminal</a>
+        </div>
+      </div>
+
+      <div class="hero-image">
+        <img src="Linux_mascot_tux.png" alt="Mascote Linux" />
+      </div>
+    </div>
+  </section>
+
+  <section id="historia" class="section-dark">
+    <div class="floating-orb left"></div>
+    <div class="container">
+
+      <div class="section-header">
+        <span>Módulo 1</span>
+        <h2>História do Unix e do Linux</h2>
+        <p>
+          A origem dos sistemas operacionais modernos começa no Bell Labs.
+          Entender Unix, GNU e Linux é compreender a base tecnológica da internet,
+          dos servidores, do Android e da computação contemporânea.
+        </p>
+      </div>
+
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-year">1969</div>
+          <h3>Nascimento do Unix</h3>
+          <p>
+            Ken Thompson e Dennis Ritchie iniciam o desenvolvimento do Unix no Bell Labs.
+            O objetivo era criar um sistema simples, eficiente e portátil.
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-year">1972–1973</div>
+          <h3>A Linguagem C muda tudo</h3>
+          <p>
+            Dennis Ritchie cria a linguagem C e o Unix é reescrito nela.
+            Isso torna o sistema portátil entre diferentes hardwares.
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-year">1983</div>
+          <h3>Projeto GNU</h3>
+          <p>
+            Richard Stallman anuncia o Projeto GNU com a missão de construir
+            um sistema operacional completamente livre.
+          </p>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-year">1991</div>
+          <h3>Nasce o Kernel Linux</h3>
+          <p>
+            Linus Torvalds publica o kernel Linux.
+            Combinado aos programas GNU, nasce o sistema GNU/Linux.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="distros" class="section-light">
+    <div class="container">
+
+      <div class="section-header">
+        <span>Módulo 2</span>
+        <h2>Distribuições Linux</h2>
+        <p>
+          O kernel Linux sozinho não é um sistema completo.
+          As distribuições combinam kernel, programas, interface gráfica e gerenciadores de pacotes.
+        </p>
+      </div>
+
+      <div class="cards">
+
+        <div class="card">
+          <div class="card-number">1993</div>
+          <h3>Slackware</h3>
+          <p>
+            A distribuição ativa mais antiga.
+            Foco em simplicidade, estabilidade e fidelidade à filosofia Unix.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-number">1993</div>
+          <h3>Debian</h3>
+          <p>
+            Projeto comunitário extremamente estável.
+            Base do Ubuntu, Linux Mint e inúmeras outras distribuições.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-number">1994</div>
+          <h3>Red Hat</h3>
+          <p>
+            Distribuição voltada ao ambiente corporativo.
+            Originou Fedora, CentOS e RHEL.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="plus-banner">
+        <h3>Genealogia das distribuições</h3>
+        <p>
+          Kernel Linux → Slackware • Debian • Red Hat → Ubuntu • Fedora • Mint • RHEL • openSUSE • Kali Linux.
+        </p>
+      </div>
+
+      <div style="height:60px"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Família</th>
+              <th>Pacote</th>
+              <th>Gerenciador</th>
+              <th>Exemplos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Debian</td>
+              <td>.deb</td>
+              <td>apt / dpkg</td>
+              <td>Ubuntu, Mint, Debian</td>
+            </tr>
+            <tr>
+              <td>Red Hat</td>
+              <td>.rpm</td>
+              <td>dnf / yum</td>
+              <td>Fedora, RHEL, CentOS</td>
+            </tr>
+            <tr>
+              <td>Slackware</td>
+              <td>.tgz / .txz</td>
+              <td>pkgtool</td>
+              <td>Slackware</td>
+            </tr>
+            <tr>
+              <td>Arch</td>
+              <td>.pkg.tar.zst</td>
+              <td>pacman</td>
+              <td>Arch, Manjaro</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="gui" class="section-dark">
+    <div class="floating-orb right"></div>
+
+    <div class="container">
+
+      <div class="section-header">
+        <span>Módulo 3</span>
+        <h2>Interface Gráfica</h2>
+        <p>
+          No Linux o usuário escolhe a experiência visual.
+          Diferentes ambientes gráficos permitem personalização, desempenho e produtividade.
+        </p>
+      </div>
+
+      <div class="cards">
+
+        <div class="card">
+          <div class="card-number">GNOME</div>
+          <h3>Minimalista e moderno</h3>
+          <p>
+            Interface limpa, elegante e focada em produtividade.
+            Padrão em distribuições como Ubuntu e Fedora.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-number">KDE Plasma</div>
+          <h3>Extremamente personalizável</h3>
+          <p>
+            Interface poderosa com enorme capacidade de customização.
+            Muito popular entre usuários avançados.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-number">XFCE</div>
+          <h3>Leve e eficiente</h3>
+          <p>
+            Excelente desempenho em computadores modestos.
+            Ideal para sistemas antigos ou máquinas virtuais.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-number">Cinnamon</div>
+          <h3>Tradicional e amigável</h3>
+          <p>
+            Interface confortável para usuários vindos do Windows.
+            Muito usada no Linux Mint.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <section id="arquivos" class="section-light">
+    <div class="container">
+
+      <div class="section-header">
+        <span>Módulo 4</span>
+        <h2>Estrutura de Arquivos</h2>
+        <p>
+          O Linux utiliza uma estrutura hierárquica unificada iniciada pela raiz “/”.
+          Tudo é tratado como arquivo — inclusive dispositivos de hardware.
+        </p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Diretório</th>
+              <th>Função</th>
+              <th>Exemplo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>/bin</td>
+              <td>Comandos essenciais</td>
+              <td>ls, cp, cat</td>
+            </tr>
+            <tr>
+              <td>/etc</td>
+              <td>Arquivos de configuração</td>
+              <td>/etc/passwd</td>
+            </tr>
+            <tr>
+              <td>/home</td>
+              <td>Pastas dos usuários</td>
+              <td>/home/aluno</td>
+            </tr>
+            <tr>
+              <td>/usr</td>
+              <td>Programas e bibliotecas</td>
+              <td>/usr/bin</td>
+            </tr>
+            <tr>
+              <td>/var</td>
+              <td>Logs e arquivos variáveis</td>
+              <td>/var/log</td>
+            </tr>
+            <tr>
+              <td>/dev</td>
+              <td>Dispositivos de hardware</td>
+              <td>/dev/sda</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="height:60px"></div>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>Linux</h3>
+          <ul>
+            <li>Raiz única “/”</li>
+            <li>Diferencia maiúsculas e minúsculas</li>
+            <li>Hardware tratado como arquivo</li>
+            <li>Estrutura padronizada pelo FHS</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Windows</h3>
+          <ul>
+            <li>Unidades C:, D:, E:</li>
+            <li>Não diferencia maiúsculas</li>
+            <li>Hardware por letras/unidades</li>
+            <li>Estrutura centralizada no sistema</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <section id="terminal" class="section-blue">
+    <div class="container">
+
+      <div class="section-header">
+        <span>Módulo 5</span>
+        <h2>Terminal Linux</h2>
+        <p>
+          O terminal é uma das ferramentas mais poderosas do Linux.
+          Com poucos comandos é possível navegar, criar arquivos, mover dados e administrar o sistema.
+        </p>
+      </div>
+
+      <div class="code-grid">
+
+        <div class="command-box">
+          <span class="command">pwd</span>
+          <div class="command-desc">
+            Mostra o diretório atual onde o usuário está navegando.
+          </div>
+        </div>
+
+        <div class="command-box">
+          <span class="command">ls -l</span>
+          <div class="command-desc">
+            Lista arquivos com detalhes de permissões, tamanho e data.
+          </div>
+        </div>
+
+        <div class="command-box">
+          <span class="command">cd /home</span>
+          <div class="command-desc">
+            Navega entre diretórios da árvore de arquivos.
+          </div>
+        </div>
+
+        <div class="command-box">
+          <span class="command">mkdir projetos</span>
+          <div class="command-desc">
+            Cria uma nova pasta chamada “projetos”.
+          </div>
+        </div>
+
+        <div class="command-box">
+          <span class="command">touch nota.txt</span>
+          <div class="command-desc">
+            Cria um arquivo vazio rapidamente.
+          </div>
+        </div>
+
+        <div class="command-box">
+          <span class="command">sudo apt update</span>
+          <div class="command-desc">
+            Atualiza os repositórios do sistema em distribuições Debian.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <h2>GNU/Linux • Sistemas Operacionais</h2>
+
+    <p>
+      Material baseado na estrutura da aula do Curso Técnico em Informática — IFRJ Campus Pinheiral.
+      Design inspirado na linguagem visual editorial da PlayStation, com foco em imersão, tipografia leve,
+      transições cinematográficas e seções full-bleed.
+    </p>
+
+    <div class="footer-bottom">
+      Professor Alex Moreira Fonseca • IFRJ Campus Pinheiral • 2026
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.animate([
+            { opacity: 0, transform: 'translateY(50px)' },
+            { opacity: 1, transform: 'translateY(0px)' }
+          ], {
+            duration: 900,
+            easing: 'cubic-bezier(.2,.8,.2,1)',
+            fill: 'forwards'
+          });
+        }
+      });
+    }, { threshold: .12 });
+
+    document.querySelectorAll('.card, .timeline-item, .table-wrap, .command-box').forEach(el => {
+      el.style.opacity = 0;
+      observer.observe(el);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      const glow = document.querySelector('.glow');
+      glow.style.transform = `translate(${e.clientX * 0.02}px, ${e.clientY * 0.02}px)`;
+    });
+  </script>
+
+</body>
+</html>
